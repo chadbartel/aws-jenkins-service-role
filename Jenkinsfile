@@ -49,7 +49,7 @@ pipeline{
             export ENV_VAR=$(echo $ENV_VAR)
             export TF_VAR_env=$(echo ${ENV_VAR})
             export BACKEND_FILE=backend-${ENV_VAR}.tf
-            sudo cp backends/${BACKEND_FILE} backend.tf
+            cp backends/${BACKEND_FILE} backend.tf
             terraform init
             terraform validate
             terraform plan -out=tfplan
