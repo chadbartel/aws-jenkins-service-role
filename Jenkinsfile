@@ -71,7 +71,7 @@ pipeline{
                     'Yes', 
                     'No'
                   ], 
-                  name: 'approvalInput'
+                  name: 'approvalInput',
                   description: 'By selecting "Yes" you acknowledge that you reviewed the Terraform plan.'
                 )
               ]
