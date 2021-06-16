@@ -92,12 +92,14 @@ pipeline{
             inputApproval = userInput
           }
         }
-        if (inputApproval == 'No') {      
-          autoCancelled = true
-          echo 'Aborted the build'
-          error ('Aborting the build as requested')
-          currentBuild.result = 'ABORTED'
-          return
+        script {
+          if (inputApproval == 'No') {      
+            autoCancelled = true
+            echo 'Aborted the build'
+            error ('Aborting the build as requested')
+            currentBuild.result = 'ABORTED'
+            return
+          }
         }
       }
     }
