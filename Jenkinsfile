@@ -15,6 +15,9 @@ pipeline{
       label "docker-agent"
     }
   }
+  environment {
+    TERRAFORM_CMD = 'docker run --network host " -w /app -v ${HOME}/.aws:/root/.aws -v ${HOME}/.ssh:/root/.ssh -v `pwd`:/app hashicorp/terraform:light'
+  }
   triggers {
     // Check repo for commits every five minutes after the hour
     pollSCM('H/5 * * * *')
@@ -42,6 +45,16 @@ pipeline{
       }
     }
 
+    stage("Build Terraform light image"){
+      steps{
+        script {
+          sh '''
+            docker pull hashicorp/terraform:light
+          '''
+        }
+      }
+    }
+
     stage("Plan Terraform"){
       steps{
         script {
@@ -50,9 +63,9 @@ pipeline{
             export TF_VAR_env=$(echo ${ENV_VAR})
             export BACKEND_FILE=backend-${ENV_VAR}.tf
             cp backends/${BACKEND_FILE} backend.tf
-            terraform init
-            terraform validate
-            terraform plan -out=tfplan
+            ${TERRAFORM_CMD} init
+            ${TERRAFORM_CMD} validate
+            ${TERRAFORM_CMD} plan -out=tfplan
           '''
         }
       }
@@ -78,13 +91,14 @@ pipeline{
             )
             inputApproval = userInput
           }
-          if (inputApproval == 'No') {      
-            autoCancelled = true
-            currentBuild.result = 'ABORTED'
-            error('Aborting the build.')
-          }
         }
       }
+    }
+
+    if (inputApproval == 'No') {      
+      autoCancelled = true
+      currentBuild.result = 'SUCCESS'
+      return
     }
   }
 }
